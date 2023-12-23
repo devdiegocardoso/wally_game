@@ -4213,6 +4213,17 @@ d},Unpin(){this._SetPinInst(null);this._mode="";this._propSet.clear();this._pinI
 }
 
 {
+'use strict';{const C3=self.C3;C3.Behaviors.Flash=class FlashBehavior extends C3.SDKBehaviorBase{constructor(opts){super(opts)}Release(){super.Release()}}}{const C3=self.C3;C3.Behaviors.Flash.Type=class FlashType extends C3.SDKBehaviorTypeBase{constructor(behaviorType){super(behaviorType)}Release(){super.Release()}OnCreate(){}}}
+{const C3=self.C3;const C3X=self.C3X;const IBehaviorInstance=self.IBehaviorInstance;C3.Behaviors.Flash.Instance=class FlashInstance extends C3.SDKBehaviorInstanceBase{constructor(behInst,properties){super(behInst);this._onTime=0;this._offTime=0;this._stage=0;this._stageTimeLeft=0;this._timeLeft=0;this._StartTicking()}Release(){super.Release()}_Flash(on,off,dur){this._onTime=on;this._offTime=off;this._stage=1;this._stageTimeLeft=off;this._timeLeft=dur;this._inst.GetWorldInfo().SetVisible(false);this._runtime.UpdateRender()}_StopFlashing(){this._timeLeft=
+0;this._inst.GetWorldInfo().SetVisible(true);this._runtime.UpdateRender()}_IsFlashing(){return this._timeLeft>0}SaveToJson(){return{"on":this._onTime,"off":this._offTime,"s":this._stage,"stl":this._stageTimeLeft,"tl":this._timeLeft}}LoadFromJson(o){this._onTime=o["on"];this._offTime=o["off"];this._stage=o["s"];this._stageTimeLeft=o["stl"];this._timeLeft=o["tl"]===null?Infinity:o["tl"]}Tick(){if(this._timeLeft<=0)return;const dt=this._runtime.GetDt(this._inst);this._timeLeft-=dt;if(this._timeLeft<=
+0){this._timeLeft=0;this._inst.GetWorldInfo().SetVisible(true);this._runtime.UpdateRender();this.DispatchScriptEvent("flashend");return this.DebugTrigger(C3.Behaviors.Flash.Cnds.OnFlashEnded)}this._stageTimeLeft-=dt;if(this._stageTimeLeft<=0){if(this._stage===0){this._inst.GetWorldInfo().SetVisible(false);this._stage=1;this._stageTimeLeft+=this._offTime}else{this._inst.GetWorldInfo().SetVisible(true);this._stage=0;this._stageTimeLeft+=this._onTime}this._runtime.UpdateRender()}}GetDebuggerProperties(){const prefix=
+"behaviors.flash.debugger";return[{title:"$"+this.GetBehaviorType().GetName(),properties:[{name:prefix+".on-time",value:this._onTime,onedit:v=>this._onTime=v},{name:prefix+".off-time",value:this._offTime,onedit:v=>this._offTime=v},{name:prefix+".is-flashing",value:this._timeLeft>0},{name:prefix+".time-left",value:this._timeLeft}]}]}GetScriptInterfaceClass(){return self.IFlashBehaviorInstance}};const map=new WeakMap;self.IFlashBehaviorInstance=class IFlashBehaviorInstance extends IBehaviorInstance{constructor(){super();
+map.set(this,IBehaviorInstance._GetInitInst().GetSdkInstance())}flash(on,off,dur){C3X.RequireFiniteNumber(on);C3X.RequireFiniteNumber(off);C3X.RequireFiniteNumber(dur);map.get(this)._Flash(on,off,dur)}stop(){map.get(this)._StopFlashing()}get isFlashing(){return map.get(this)._IsFlashing()}}}{const C3=self.C3;C3.Behaviors.Flash.Cnds={IsFlashing(){return this._IsFlashing()},OnFlashEnded(){return true}}}{const C3=self.C3;C3.Behaviors.Flash.Acts={Flash(on,off,dur){this._Flash(on,off,dur)},StopFlashing(){this._StopFlashing()}}}
+{const C3=self.C3;C3.Behaviors.Flash.Exps={}};
+
+}
+
+{
 const C3 = self.C3;
 self.C3_GetObjectRefTable = function () {
 	return [
@@ -4227,6 +4238,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.List,
 		C3.Plugins.Dictionary,
 		C3.Plugins.Browser,
+		C3.Behaviors.Flash,
 		C3.Plugins.Touch.Cnds.OnTapGestureObject,
 		C3.Plugins.System.Acts.GoToLayout,
 		C3.Plugins.System.Cnds.OnLayoutStart,
@@ -4258,8 +4270,8 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.CompareBoolVar,
 		C3.Plugins.NinePatch.Acts.SetVisible,
 		C3.Plugins.System.Cnds.Else,
-		C3.Plugins.System.Cnds.OnLoadFinished,
-		C3.Plugins.Browser.Acts.LockOrientation,
+		C3.Behaviors.Flash.Acts.Flash,
+		C3.Behaviors.Flash.Cnds.OnFlashEnded,
 		C3.Plugins.List.Cnds.CompareSelection,
 		C3.Plugins.List.Cnds.OnSelectionChanged,
 		C3.Plugins.List.Acts.SetBlur
@@ -4328,6 +4340,10 @@ self.C3_JsPropNameTable = [
 	{wally_fans2: 0},
 	{wally_items2: 0},
 	{close_text: 0},
+	{wally_text3: 0},
+	{wally_text4: 0},
+	{Flash: 0},
+	{hint_circle: 0},
 	{startDistance: 0},
 	{startScale: 0},
 	{tails_left: 0},
@@ -4389,7 +4405,10 @@ self.InstanceType = {
 	wally_sprite2: class extends self.ISpriteInstance {},
 	wally_fans2: class extends self.ISpriteInstance {},
 	wally_items2: class extends self.ISpriteInstance {},
-	close_text: class extends self.ITextInstance {}
+	close_text: class extends self.ITextInstance {},
+	wally_text3: class extends self.ITextInstance {},
+	wally_text4: class extends self.ITextInstance {},
+	hint_circle: class extends self.ISpriteInstance {}
 }
 }
 
@@ -4546,6 +4565,7 @@ self.C3_ExpressionFuncs = [
 			const n3 = p._GetNode(3);
 			return () => ((("Time: " + f0(n1.ExpObject("minutes"), 2)) + ":") + f2(n3.ExpObject("seconds"), 2));
 		},
+		() => 0.2,
 		() => 6,
 		() => -1,
 		() => "Don't forget to select the difficulty level!",
